@@ -10,7 +10,7 @@ public class BaseException extends Exception{
     }
 }
 
-class InvalidPaymentAmountException extends BaseException{
+class InvalidPaymentAmountException extends NumberFormatException{
     public InvalidPaymentAmountException(String message){
         super(message);
     }

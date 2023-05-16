@@ -1,77 +1,95 @@
 package org.busra;
 import java.math.BigInteger;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.Year;
 import java.util.Date;
 import java.util.Random;
 import java.util.Scanner;
 
+import static java.lang.Integer.valueOf;
+
 public class PaymentMenu {
+    private static int [] months = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
 
     public static void pay() throws SystemNotWorkingException {
         Random r = new Random();
         if (r.nextInt() > 75)
-            throw new SystemNotWorkingException();
+            throw new SystemNotWorkingException("System not working. Try again...");
     }
     public static void run() {
         System.out.println("------  Welcome to Payment Menu  -----");
         Scanner kb = new Scanner(System.in);
 
         try {
-            System.out.print("Enter Payment Amount: ");
-            Integer amount = kb.nextInt();
+            System.out.print("Enter Payment Amount : ");
+            String amount = kb.nextLine();
             if (!isValidAmount(amount))
                 throw new InvalidPaymentAmountException("Invalid amount! Payment amount mustn't be negative or float.");
 
-            System.out.print("Enter Card Number: ");
+            System.out.print("Enter Card Number : ");
             String cardNumber = kb.nextLine();
             if (!isValidCardNumber(cardNumber))
-                throw new InvalidCardNumberException("Invalid card number! Card number must be 16 character number.");
+                throw new InvalidCardNumberException("Invalid card number! Card number must be 16 character and mustn't be letter.");
 
-            System.out.println("Enter Date: ");
-            String date = kb.nextLine();
-            if (!isValidDate(date))
-                throw new InvalidDateException("Invalid date! Year must be greater than now.");
+            System.out.print("Enter Month and Year : ");
+            int month = kb.nextInt();
+            kb.nextLine();
+            int year = kb.nextInt();
+            kb.nextLine();
+            if (!isValidDate(month, year))
+                throw new InvalidDateException("Invalid year! Year must be greater than now and month must be between 01-12.");
 
-            System.out.println("Enter Security Code: ");
-            int code = kb.nextInt();
+            System.out.print("Enter Security Code : ");
+            String code = kb.nextLine();
             if (!isValidCode(code))
-                throw new InvalidSecurityCodeException("Invalid card number! Card number must be 16 character number.");
+                throw new InvalidSecurityCodeException("Invalid security code! Security code must be 3 character and mustn't be letter.");
 
-        } catch (InvalidPaymentAmountException e){
-            System.out.println(e.getMessage());
-        } catch (InvalidCardNumberException e){
-            System.out.println(e.getMessage());
-        } catch (InvalidDateException e){
-            System.out.println(e.getMessage());
-        } catch (InvalidSecurityCodeException e){
+            pay();
+
+        } catch (InvalidPaymentAmountException | InvalidCardNumberException | InvalidDateException |
+                 InvalidSecurityCodeException | SystemNotWorkingException e) {
             System.out.println(e.getMessage());
         }
 
     }
 
-    private static boolean isValidAmount(Integer amount){
-        if (amount < 0)
+    private static boolean isValidAmount(String amount){
+        if (amount.contains(","))
+            return false;
+        for (Character c : amount.toCharArray()){
+            if (!Character.isDigit(c))
+                return false;
+        }
+        Integer amountInt = Integer.valueOf(amount);
+        if (amountInt < 0)
             return false;
         return true;
     }
 
     private static boolean isValidCardNumber(String cardNumber) {
-        if (cardNumber.length() != 16)
+        if (cardNumber.length() != 16 )
+            return false;
+        for (Character c : cardNumber.toCharArray()){
+            if (!Character.isDigit(c))
+                return false;
+        }
+        return true;
+    }
+
+    private static boolean isValidDate(int month, int year){
+        if (month < 1 || month > 12 || year < 2023)
             return false;
         return true;
     }
 
-    private static boolean isValidDate(String year){
-        return true;
-    }
-
-    private static boolean isValidCode(int code){
-        int count = 0;
-        while (code != 0){
-            code = code / 10;
-            ++count;
+    private static boolean isValidCode(String code){
+        for (Character c : code.toCharArray()){
+            if (!Character.isDigit(c))
+                return false;
         }
-        if(count != 3){
+        if(code.length() != 3){
             return false;
         }
         return true;
